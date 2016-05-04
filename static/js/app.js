@@ -4,7 +4,7 @@ var home = Ractive.extend({
         {{#each posts}}
           <div class="panel panel-default">
             <div class="panel-heading">
-              <h3 class="panel-title">{{ title }}</h3>
+              <h2 class="panel-title"><a href="/{{ id }}/">{{ title }}</a></h2>
             </div>
             <div class="panel-body">{{ content }}</div>
           </div>
@@ -17,6 +17,13 @@ var home = Ractive.extend({
         };
     }
 });
+
+var postDetail = Ractive.extend({
+    template: `
+        <h1>Post detail {{ id }}</h1>
+    `
+});
+
 
 var admin = Ractive.extend({
     template: `
@@ -38,56 +45,15 @@ var admin = Ractive.extend({
     }
 });
 
-var route = Ractive.extend({
-    isolated: true,
-    oninit: function() {
-        page(this.get('path'), function() {
-            this.parent.set('currentView', this.get('component'));
-        }.bind(this));
-    }
-});
-
-var router = Ractive.extend({
-    isolated: true,
-    template: `
-        {{>content}}
-        {{>getComponent(currentView)}}
-    `,
-    data: function() {
-        return {
-            currentView: '',
-            getComponent: function(name) {
-                name = name || 'default';
-
-                if (!!this.partials[name]) {
-                    return name;
-                }
-
-                this.partials[name] = '<' + name + ' />';
-                return name;
-            }
-        };
-    },
-    components: {
-        route: route
-    },
-    onconfig: function() {
-        $.extend(this.components, this.get('views'));
-    },
-    onrender: function() {
-        page();
-    }
-});
-
 var ractive = Ractive({
     el: '#root',
     template: `
         <main class="container-fluid">
-            {{ name }}
           <a href="/">Home</a>
           <a href="/admin/">Admin</a>
           <router views="{{ views }}">
             <route path="/" component="home" />
+            <route path="/:id(\\d+)/" component="post-detail" />
             <route path="/admin/" component="admin" />
           </router>
         </main>
@@ -98,7 +64,8 @@ var ractive = Ractive({
     data: {
         views: {
             home: home,
-            admin: admin
+            admin: admin,
+            'post-detail': postDetail
         }
     }
 });

@@ -20,8 +20,25 @@ var home = Ractive.extend({
 
 var postDetail = Ractive.extend({
     template: `
-        <h1>Post detail {{ id }}</h1>
-    `
+        <h1>{{ post.title }}</h1>
+        <p>{{ post.content }}</p>
+    `,
+    data: function() {
+        return {
+            post: {}
+        };
+    },
+    oninit: function() {
+        this.observe('id', function(value) {
+            if (value) {
+                this.getPost(value);
+                console.log('detailed view', value);
+            }
+        });
+    },
+    getPost: function(id) {
+        this.set('post', posts.filter(function(v) { return v.id == id; })[0]);
+    }
 });
 
 

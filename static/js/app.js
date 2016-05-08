@@ -72,27 +72,31 @@ var editedPostForm = component.extend({
     data: function() {
         return {
             posts: posts,
-            post: {}
+            post: {},
+            save: this.save.bind(this)
         }
     },
-    template: `
-        <form>
-            <div class="form-group">
-                <label for="title">Title</label>
-                <input type="text" id="title" value="{{ postState.title }}" class="form-control">
-            </div>
-            <div class="form-group">
-                <label for="content">Content</label>
-                <input type="text" id="content" value="{{ postState.content }}" class="form-control">
-            </div>
-            <button class="btn btn-primary pull-right" type="button" on-click="save()">Save</button>
-        </form>
-    `,
     computed: {
         postState: function() {
             return $.extend({}, this.get('post'));
         }
     },
+    decorators: {
+        parsley: parsley
+    },
+    template: `
+        <form decorator="parsley: {{ save }}">
+            <div class="form-group">
+                <label for="title">Title</label>
+                <input type="text" id="title" value="{{ postState.title }}" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="content">Content</label>
+                <input type="text" id="content" value="{{ postState.content }}" class="form-control" required>
+            </div>
+            <button class="btn btn-primary pull-right">Save</button>
+        </form>
+    `,
     save: function() {
         var postState = this.get('postState');
         var posts = this.get('posts');

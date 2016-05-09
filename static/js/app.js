@@ -36,7 +36,7 @@ var jqte = component.extend({
 var home = component.extend({
     template: `
         <h1>Ractive blog</h1>
-        {{#each posts}}
+        {{#each publishedPosts}}
           <div class="panel panel-default">
             <div class="panel-heading">
               <p class="pull-right">{{ publicationDate }}</p>
@@ -46,9 +46,13 @@ var home = component.extend({
           </div>
         {{/each}}
     `,
+    oninit: function() {
+        var publishedPosts = posts.filter(function(v) { return v.published; });
+        this.set('publishedPosts', publishedPosts);
+    },
     data: function() {
         return {
-            posts: posts
+            publishedPosts: []
         };
     }
 });
@@ -137,6 +141,11 @@ var editedPostForm = component.extend({
                     <input type="text" class="form-control" id="date" decorator="datepicker"
                            value="{{ postState.publicationDate }}" required>
                 </div>
+            </div>
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" checked="{{ postState.published }}" name="published"> Published
+                </label>
             </div>
             <button class="btn btn-primary pull-right">Save</button>
         </form>

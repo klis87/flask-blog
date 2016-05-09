@@ -39,6 +39,7 @@ var home = component.extend({
         {{#each posts}}
           <div class="panel panel-default">
             <div class="panel-heading">
+              <p class="pull-right">{{ publicationDate }}</p>
               <h2 class="panel-title"><a href="/{{ id }}/">{{ title }}</a></h2>
             </div>
             <div class="panel-body">{{{ content }}}</div>
@@ -55,6 +56,7 @@ var home = component.extend({
 var postDetail = component.extend({
     template: `
         <h1>{{ post.title }}</h1>
+        <p>Published: {{ post.publicationDate }}</p>
         <p>{{{ post.content }}}</p>
     `,
     data: function() {
@@ -113,7 +115,8 @@ var editedPostForm = component.extend({
         }
     },
     decorators: {
-        parsley: parsley
+        parsley: parsley,
+        datepicker: datepicker
     },
     components: {
         jqte: jqte
@@ -127,6 +130,13 @@ var editedPostForm = component.extend({
             <div class="form-group">
                 <label>Content</label>
                 <jqte value="{{ postState.content }}" required="{{ true }}" />
+            </div>
+            <div class="form-group">
+                <label for="date">Publication date</label>
+                <div style="position: relative;">
+                    <input type="text" class="form-control" id="date" decorator="datepicker"
+                           value="{{ postState.publicationDate }}" required>
+                </div>
             </div>
             <button class="btn btn-primary pull-right">Save</button>
         </form>

@@ -15,3 +15,18 @@ var parsley = function(node, callback) {
         }
     }
 };
+
+var datepicker = function(node) {
+    var options = {
+        format: 'DD/MM/YYYY',
+        useCurrent: false
+    };
+
+    $(node).datetimepicker(options);
+
+    return {
+        teardown: function() {
+            $(node).data("DateTimePicker").destroy();
+        }
+    };
+};

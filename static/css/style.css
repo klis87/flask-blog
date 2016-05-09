@@ -1,11 +1,3 @@
-input.parsley-success,
-select.parsley-success,
-textarea.parsley-success {
-  color: #468847;
-  background-color: #DFF0D8;
-  border: 1px solid #D6E9C6;
-}
-
 input.parsley-error,
 select.parsley-error,
 textarea.parsley-error {
@@ -30,4 +22,12 @@ textarea.parsley-error {
 
 .parsley-errors-list.filled {
   opacity: 1;
+}
+
+.jqte {
+  margin: 3px;
+}
+
+.jqte_tool.jqte_tool_1 .jqte_tool_label {
+  height:26px;
 }

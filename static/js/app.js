@@ -2,6 +2,37 @@ var component = Ractive.extend({
     isolated: true
 });
 
+var jqte = component.extend({
+    data: function() {
+        return {
+            updated: false,
+            required: false
+        }
+    },
+    template: `
+        <textarea value="{{ value }}"></textarea>
+        {{#if required}}
+            <input type="text" value="{{ value }}" required class="hide">
+        {{/if}}
+    `,
+    onrender: function() {
+        var node = $(this.find('textarea'));
+
+        node.jqte({
+            change: function() {
+                this.set('value', node.val());
+            }.bind(this)
+        });
+
+        this.observe('value', function(value) {
+            if (value && !this.get('updated')) {
+                this.set('updated', true);
+                node.jqteVal(value);
+            }
+        }, {defer: true});
+    }
+});
+
 var home = component.extend({
     template: `
         <h1>Ractive blog</h1>
@@ -10,7 +41,7 @@ var home = component.extend({
             <div class="panel-heading">
               <h2 class="panel-title"><a href="/{{ id }}/">{{ title }}</a></h2>
             </div>
-            <div class="panel-body">{{ content }}</div>
+            <div class="panel-body">{{{ content }}}</div>
           </div>
         {{/each}}
     `,
@@ -24,7 +55,7 @@ var home = component.extend({
 var postDetail = component.extend({
     template: `
         <h1>{{ post.title }}</h1>
-        <p>{{ post.content }}</p>
+        <p>{{{ post.content }}}</p>
     `,
     data: function() {
         return {
@@ -59,7 +90,7 @@ var admin = component.extend({
               <button on-click="remove(i)" class="btn btn-danger btn-sm pull-right">Remove</button>
               <h2 class="panel-title"><a href="/admin/{{ id }}/">{{ title }}</a></h2>
             </div>
-            <div class="panel-body">{{ content }}</div>
+            <div class="panel-body">{{{ content }}}</div>
           </div>
         {{/each}}
     `,
@@ -84,6 +115,9 @@ var editedPostForm = component.extend({
     decorators: {
         parsley: parsley
     },
+    components: {
+        jqte: jqte
+    },
     template: `
         <form decorator="parsley: {{ save }}">
             <div class="form-group">
@@ -91,8 +125,8 @@ var editedPostForm = component.extend({
                 <input type="text" id="title" value="{{ postState.title }}" class="form-control" required>
             </div>
             <div class="form-group">
-                <label for="content">Content</label>
-                <input type="text" id="content" value="{{ postState.content }}" class="form-control" required>
+                <label>Content</label>
+                <jqte value="{{ postState.content }}" required="{{ true }}" />
             </div>
             <button class="btn btn-primary pull-right">Save</button>
         </form>

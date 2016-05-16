@@ -1,11 +1,12 @@
 var route = Ractive.extend({
     isolated: true,
     oninit: function() {
-        console.log('starting route', this.get('path'));
+        //console.log('starting route', this.get('path'));
 
         page(this.get('path'), function(ctx) {
             this.parent.set('currentView', this.get('component'));
-            console.log('setting path', this.get('path'), this.get('component'));
+            //console.log('setting path', this.get('path'), this.get('component'), ctx);
+            this.root.set('currentPath', ctx.path);
 
             var id = ctx.params.id;
 
@@ -28,7 +29,7 @@ var router = Ractive.extend({
             getComponent: function(name) {
                 name = name || 'default';
 
-                console.log('setting view', name);
+                //console.log('setting view', name);
 
                 if (!!this.partials[name]) {
                     return name;

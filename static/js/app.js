@@ -2,6 +2,58 @@ var component = Ractive.extend({
     isolated: true
 });
 
+var link = component.extend({
+    template: `
+        <li class="{{ isActive }}"><a href="{{ href }}">{{ name }}</a></li>
+    `,
+    computed: {
+        isActive: function() {
+            var pattern = new RegExp(this.get('pattern'));
+            var currentPath = this.get('currentPath');
+
+            if (currentPath === undefined) {
+                return '';
+            } else {
+                return pattern.test(currentPath) ? 'active' : '';
+            }
+        }
+    }
+});
+
+var navbar = component.extend({
+    template: `
+        <header>
+            <nav class="navbar navbar-default">
+                <div class="container-fluid">
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                                data-target="#navbar-collapse" aria-expanded="false">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <a class="navbar-brand" href="/">Ractive blog</a>
+                    </div>
+                    <div class="collapse navbar-collapse" id="navbar-collapse">
+                        <ul class="nav navbar-nav">
+                            {{ yield }}
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </header>
+    `,
+    onrender: function() {
+        this.observe('currentPath', function(currentPath) {
+            this.findAllComponents('link').forEach(function(value) {
+                value.set('currentPath', currentPath);
+            });
+        });
+    }
+});
+
+
 var jqte = component.extend({
     data: function() {
         return {
@@ -219,9 +271,11 @@ var newPost = component.extend({
 var ractive = Ractive({
     el: '#root',
     template: `
+        <navbar currentPath="{{ currentPath }}">
+            <link pattern="^/(\\d+/)?$" href="/" name="Home" />
+            <link pattern="^/admin/.*$" href="/admin/" name="Admin" />
+        </navbar>
         <main class="container-fluid">
-          <a href="/">Home</a>
-          <a href="/admin/">Admin</a>
           <router views="{{ views }}">
             <route path="/" component="home" />
             <route path="/:id(\\d+)/" component="post-detail" />
@@ -232,7 +286,9 @@ var ractive = Ractive({
         </main>
     `,
     components: {
-        router: router
+        router: router,
+        navbar: navbar,
+        link: link
     },
     data: {
         views: {

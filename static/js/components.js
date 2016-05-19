@@ -129,3 +129,29 @@ var alerts = component.extend({
         this.get('messages').splice(index, 1);
     }
 });
+
+var modal = component.extend({
+    template: `
+        <div class="modal fade" tabindex="-1" id="{{ id }}">
+            <div class="modal-dialog modal-sm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                        <h2 class="modal-title">{{ title }}</h2>
+                    </div>
+                    <div class="modal-body">
+                        {{ yield body }}
+                    </div>
+                    <div class="modal-footer">
+                        {{ yield footer }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    `,
+    onrender: function() {
+        $(this.find('.modal')).on('hide.bs.modal', function() {
+            this.fire('modalHidden', this.get('id'));
+        }.bind(this));
+    }
+});

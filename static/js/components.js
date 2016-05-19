@@ -148,10 +148,5 @@ var modal = component.extend({
                 </div>
             </div>
         </div>
-    `,
-    onrender: function() {
-        $(this.find('.modal')).on('hide.bs.modal', function() {
-            this.fire('modalHidden', this.get('id'));
-        }.bind(this));
-    }
+    `
 });

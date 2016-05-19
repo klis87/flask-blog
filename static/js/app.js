@@ -65,20 +65,20 @@ var admin = component.extend({
         </div>
         <hr>
         {{#each posts: i}}
-            <div class="panel panel-{{ chosenToDelete ? 'danger' : 'default'}}">
+            <div class="panel panel-default">
                 <div class="panel-heading clearfix">
                     <div class="pull-right">
                         <a class="btn btn-primary btn-sm" href="/admin/{{ id }}/">Edit</a>
                         <button class="btn btn-danger btn-sm" data-toggle="modal"
-                                data-target="#{{ i }}" on-click="chooseToDelete(i)">Delete</button>
+                                data-target="#delete-post-{{ i }}">Delete</button>
                     </div>
                     <h2 class="panel-title">{{ title }}</h2>
                 </div>
                 <div class="panel-body">{{ description }}</div>
             </div>
-            <modal id="{{ i }}">
+            <modal id="delete-post-{{ i }}">
                 {{#partial body}}
-                    <p>Are you sure you would like to delete this post?</p>
+                    <p>Are you sure you would like to delete post {{ title }}?</p>
                 {{/partial}}
                 {{#partial footer}}
                     <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
@@ -87,23 +87,11 @@ var admin = component.extend({
             </modal>
         {{/each}}
     `,
-    oninit: function() {
-        this.on('modal.modalHidden', function(index) {
-            this.chooseNotToDelete(index);
-            return false;
-        });
-    },
     delete: function(index) {
         var posts = this.get('posts');
         var title = posts[index].title;
         posts.splice(index, 1);
         this.root.findComponent('alerts').addMessage(`Post ${title} has been deleted.`);
-    },
-    chooseToDelete: function(index) {
-        this.set(`posts[${index}].chosenToDelete`, true);
-    },
-    chooseNotToDelete: function(index) {
-        this.set(`posts[${index}].chosenToDelete`, false);
     }
 });
 

@@ -35,10 +35,30 @@ textarea.parsley-error {
 .alerts {
   position: fixed;
   top: 20px;
-  left: 20px;
+  left: 50%;
   right: 20px;
 }
 
 .alerts > div {
   margin: 10px 0;
+}
+
+@media (min-width: 768px) {
+  .navbar-header {
+    padding-right: 20px;
+  }
+}
+
+.posts {
+  margin-top: 20px;
+}
+
+.header-btn {
+  margin-top: 25px;
+  padding: 6px 29px;
+}
+
+.publication-date {
+  margin-top: 23px;
+  float: right;
 }

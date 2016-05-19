@@ -1,15 +1,16 @@
 var home = component.extend({
     template: `
-        <h1>Ractive blog</h1>
+        <div class="posts">
         {{#each publishedPosts}}
-          <div class="panel panel-default">
-            <div class="panel-heading">
-              <p class="pull-right">{{ publicationDate }}</p>
-              <h2 class="panel-title"><a href="/{{ id }}/">{{ title }}</a></h2>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <span class="pull-right">{{ publicationDate }}</span>
+                    <h2 class="panel-title"><a href="/{{ id }}/">{{ title }}</a></h2>
+                </div>
+                <div class="panel-body">{{ description }}</div>
             </div>
-            <div class="panel-body">{{{ content }}}</div>
-          </div>
         {{/each}}
+        </div>
     `,
     oninit: function() {
         var publishedPosts = posts.filter(function(v) { return v.published; });
@@ -24,8 +25,11 @@ var home = component.extend({
 
 var postDetail = component.extend({
     template: `
-        <h1>{{ post.title }}</h1>
-        <p>Published: {{ post.publicationDate }}</p>
+        <div class="clearfix">
+            <h1 class="pull-left">{{ post.title }}</h1>
+            <span class="publication-date">{{ post.publicationDate }}</span>
+        </div>
+        <hr>
         <p>{{{ post.content }}}</p>
     `,
     data: function() {
@@ -52,17 +56,22 @@ var admin = component.extend({
         };
     },
     template: `
-        <h1>Admin panel</h1>
-        <a class="btn btn-success" href="/admin/new/">New post</a>
+        <div class="clearfix">
+            <h1 class="pull-left">Admin panel</h1>
+            <a class="btn btn-success pull-right header-btn btn" href="/admin/new/">New post</a>
+        </div>
         <hr>
         {{#each posts: i}}
-          <div class="panel panel-default">
-            <div class="panel-heading clearfix">
-              <button on-click="delete(i)" class="btn btn-danger btn-sm pull-right">Remove</button>
-              <h2 class="panel-title"><a href="/admin/{{ id }}/">{{ title }}</a></h2>
+            <div class="panel panel-default">
+                <div class="panel-heading clearfix">
+                    <div class="pull-right">
+                        <a class="btn btn-primary btn-sm" href="/admin/{{ id }}/">Edit</a>
+                        <button on-click="delete(i)" class="btn btn-danger btn-sm">Delete</button>
+                    </div>
+                    <h2 class="panel-title">{{ title }}</h2>
+                </div>
+                <div class="panel-body">{{ description }}</div>
             </div>
-            <div class="panel-body">{{{ content }}}</div>
-          </div>
         {{/each}}
     `,
     delete: function(index) {
@@ -97,7 +106,13 @@ var editedPostForm = component.extend({
         <form decorator="parsley: {{ save }}">
             <div class="form-group">
                 <label for="title">Title</label>
-                <input type="text" id="title" value="{{ postState.title }}" class="form-control" required>
+                <input type="text" id="title" value="{{ postState.title }}" class="form-control" required
+                       maxlength="60">
+            </div>
+            <div class="form-group">
+                <label>Short description</label>
+                <textarea value="{{ postState.description }}" class="form-control" required="true"
+                          maxlength="255"></textarea>
             </div>
             <div class="form-group">
                 <label>Content</label>
@@ -159,6 +174,7 @@ var adminDetail = component.extend({
     },
     template: `
         <h1>{{ post.title }}</h1>
+        <hr>
         <edited-post-form post="{{ post }}" />
     `,
     components: {
@@ -179,6 +195,7 @@ var adminDetail = component.extend({
 var newPost = component.extend({
     template: `
         <h1>New post</h1>
+        <hr>
         <new-post-form />
     `,
     components: {
@@ -191,7 +208,7 @@ var ractive = Ractive({
     template: `
         <navbar currentPath="{{ currentPath }}">
             <link pattern="^/(\\d+/)?$" href="/" name="Home" />
-            <link pattern="^/admin/.*$" href="/admin/" name="Admin" />
+            <link pattern="^/admin/.*$" href="/admin/" name="Admin panel" />
         </navbar>
         <main class="container-fluid">
           <router views="{{ views }}">

@@ -20,6 +20,7 @@ var route = Ractive.extend({
 var router = Ractive.extend({
     isolated: true,
     template: `
+        <div>
         {{>content}}
         {{>getComponent(currentView)}}
     `,
@@ -35,7 +36,7 @@ var router = Ractive.extend({
                     return name;
                 }
 
-                this.partials[name] = '<' + name + ' />';
+                this.partials[name] = `<${name} />`;
                 return name;
             }
         };

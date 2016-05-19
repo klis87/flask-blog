@@ -86,7 +86,7 @@ var jqte = component.extend({
 
 var alert = component.extend({
     template: `
-        <div class="alert alert-{{ type }}">
+        <div class="alert alert-{{ type }}" intro-outro="fade">
             <button type="button" class="close" on-click="close(index)"><span>&times;</span></button>
             {{ text }}
         </div>

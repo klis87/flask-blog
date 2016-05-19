@@ -51,7 +51,7 @@ var postDetail = component.extend({
     }
 });
 
-var admin = component.extend({
+var deletePostModal = component.extend({
     data: function() {
         return {
             posts: posts
@@ -59,6 +59,36 @@ var admin = component.extend({
     },
     components: {
         modal: modal
+    },
+    template: `
+        <modal id="{{ id }}">
+            {{#partial body}}
+                <p>Are you sure you would like to delete post {{ title }}?</p>
+            {{/partial}}
+            {{#partial footer}}
+                <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
+                <button on-click="delete(index)" class="btn btn-danger" data-dismiss="modal"
+                        type="button">Yes</button>
+            {{/partial}}
+        </modal>
+    `,
+    delete: function(index) {
+        var posts = this.get('posts');
+        var title = posts[index].title;
+        posts.splice(index, 1);
+        this.root.findComponent('alerts').addMessage(`Post ${title} has been deleted.`);
+        page('/admin/');
+    }
+});
+
+var admin = component.extend({
+    data: function() {
+        return {
+            posts: posts
+        };
+    },
+    components: {
+        'delete-post-modal': deletePostModal
     },
     template: `
         <div class="clearfix">
@@ -78,25 +108,11 @@ var admin = component.extend({
                 </div>
                 <div class="panel-body">{{ description }}</div>
             </div>
-            <modal id="delete-post-{{ i }}">
-                {{#partial body}}
-                    <p>Are you sure you would like to delete post {{ title }}?</p>
-                {{/partial}}
-                {{#partial footer}}
-                    <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
-                    <button on-click="delete(i)" class="btn btn-danger" data-dismiss="modal">Yes</button>
-                {{/partial}}
-            </modal>
+            <delete-post-modal id="delete-post-{{ i }}" title="{{ title }}" index="{{ i }}" />
         {{ else }}
             <p>There is no post added yet.</p>
         {{/each}}
-    `,
-    delete: function(index) {
-        var posts = this.get('posts');
-        var title = posts[index].title;
-        posts.splice(index, 1);
-        this.root.findComponent('alerts').addMessage(`Post ${title} has been deleted.`);
-    }
+    `
 });
 
 var editedPostForm = component.extend({
@@ -147,7 +163,9 @@ var editedPostForm = component.extend({
                     <input type="checkbox" checked="{{ postState.published }}" name="published"> Published
                 </label>
             </div>
+            <hr>
             <button class="btn btn-primary pull-right">Save</button>
+            {{ yield }}
         </form>
     `,
     save: function() {
@@ -186,16 +204,30 @@ var newPostForm = editedPostForm.extend({
 var adminDetail = component.extend({
     data: function() {
         return {
-            post: {}
+            post: {},
+            posts: posts
         };
+    },
+    computed: {
+        index: function() {
+            var id = parseInt(this.get('id'));
+            var posts = this.get('posts');
+            var postsIds = posts.map(function(v) { return v.id; });
+            return postsIds.indexOf(id);
+        }
     },
     template: `
         <h1>{{ post.title }}</h1>
         <hr>
-        <edited-post-form post="{{ post }}" />
+        <edited-post-form post="{{ post }}">
+            <button class="btn btn-danger btn pull-left" data-toggle="modal" type="button"
+                    data-target="#delete-post">Delete</button>
+            <delete-post-modal id="delete-post" title="{{ post.title }}" index="{{ index }}" />
+        </edited-post-form>
     `,
     components: {
-        'edited-post-form': editedPostForm
+        'edited-post-form': editedPostForm,
+        'delete-post-modal': deletePostModal
     },
     oninit: function() {
         this.observe('id', function(value) {

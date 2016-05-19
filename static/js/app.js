@@ -219,7 +219,7 @@ var newPost = component.extend({
 var ractive = Ractive({
     el: '#root',
     template: `
-        <navbar currentPath="{{ currentPath }}">
+        <navbar currentPath="{{ currentPath }}" brand="RACTIVE BLOG">
             <link pattern="^/(\\d+/)?$" href="/" name="Home" />
             <link pattern="^/admin/.*$" href="/admin/" name="Admin panel" />
         </navbar>

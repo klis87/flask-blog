@@ -31,3 +31,14 @@ textarea.parsley-error {
 .jqte_tool.jqte_tool_1 .jqte_tool_label {
   height:26px;
 }
+
+.alerts {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  right: 20px;
+}
+
+.alerts > div {
+  margin: 10px 0;
+}

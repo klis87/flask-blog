@@ -1,90 +1,3 @@
-var component = Ractive.extend({
-    isolated: true
-});
-
-var link = component.extend({
-    template: `
-        <li class="{{ isActive }}"><a href="{{ href }}">{{ name }}</a></li>
-    `,
-    computed: {
-        isActive: function() {
-            var pattern = new RegExp(this.get('pattern'));
-            var currentPath = this.get('currentPath');
-
-            if (currentPath === undefined) {
-                return '';
-            } else {
-                return pattern.test(currentPath) ? 'active' : '';
-            }
-        }
-    }
-});
-
-var navbar = component.extend({
-    template: `
-        <header>
-            <nav class="navbar navbar-default">
-                <div class="container-fluid">
-                    <div class="navbar-header">
-                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
-                                data-target="#navbar-collapse" aria-expanded="false">
-                            <span class="sr-only">Toggle navigation</span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                        </button>
-                        <a class="navbar-brand" href="/">Ractive blog</a>
-                    </div>
-                    <div class="collapse navbar-collapse" id="navbar-collapse">
-                        <ul class="nav navbar-nav">
-                            {{ yield }}
-                        </ul>
-                    </div>
-                </div>
-            </nav>
-        </header>
-    `,
-    onrender: function() {
-        this.observe('currentPath', function(currentPath) {
-            this.findAllComponents('link').forEach(function(value) {
-                value.set('currentPath', currentPath);
-            });
-        });
-    }
-});
-
-
-var jqte = component.extend({
-    data: function() {
-        return {
-            updated: false,
-            required: false
-        }
-    },
-    template: `
-        <textarea value="{{ value }}"></textarea>
-        {{#if required}}
-            <input type="text" value="{{ value }}" required class="hide">
-        {{/if}}
-    `,
-    onrender: function() {
-        var node = $(this.find('textarea'));
-
-        node.jqte({
-            change: function() {
-                this.set('value', node.val());
-            }.bind(this)
-        });
-
-        this.observe('value', function(value) {
-            if (value && !this.get('updated')) {
-                this.set('updated', true);
-                node.jqteVal(value);
-            }
-        }, {defer: true});
-    }
-});
-
 var home = component.extend({
     template: `
         <h1>Ractive blog</h1>
@@ -145,15 +58,18 @@ var admin = component.extend({
         {{#each posts: i}}
           <div class="panel panel-default">
             <div class="panel-heading clearfix">
-              <button on-click="remove(i)" class="btn btn-danger btn-sm pull-right">Remove</button>
+              <button on-click="delete(i)" class="btn btn-danger btn-sm pull-right">Remove</button>
               <h2 class="panel-title"><a href="/admin/{{ id }}/">{{ title }}</a></h2>
             </div>
             <div class="panel-body">{{{ content }}}</div>
           </div>
         {{/each}}
     `,
-    remove: function(index) {
-        this.get('posts').splice(index, 1);
+    delete: function(index) {
+        var posts = this.get('posts');
+        var title = posts[index].title;
+        posts.splice(index, 1);
+        this.root.findComponent('alerts').addMessage(`Post ${title} has been deleted.`);
     }
 });
 
@@ -208,6 +124,7 @@ var editedPostForm = component.extend({
         var editedPostIndex = posts.map(function(v) { return v.id; }).indexOf(postState.id);
         this.set(`posts[${editedPostIndex}]`, postState);
         this.set('post', postState);
+        this.root.findComponent('alerts').addMessage(`Post ${postState.title} has been successfully edited.`);
     }
 });
 
@@ -230,6 +147,7 @@ var newPostForm = editedPostForm.extend({
         var posts = this.get('posts');
         this.get('posts').push(postState);
         page(`/admin/${postState.id}/`);
+        this.root.findComponent('alerts').addMessage(`Post ${postState.title} has been successfully created.`);
     }
 });
 
@@ -284,11 +202,13 @@ var ractive = Ractive({
             <route path="/admin/new/" component="new-post">
           </router>
         </main>
+        <alerts />
     `,
     components: {
         router: router,
         navbar: navbar,
-        link: link
+        link: link,
+        alerts: alerts
     },
     data: {
         views: {

@@ -9,6 +9,8 @@ var home = component.extend({
                 </div>
                 <div class="panel-body">{{ description }}</div>
             </div>
+        {{ else }}
+            <p>There is no post added yet.</p>
         {{/each}}
         </div>
     `,
@@ -85,6 +87,8 @@ var admin = component.extend({
                     <button on-click="delete(i)" class="btn btn-danger" data-dismiss="modal">Yes</button>
                 {{/partial}}
             </modal>
+        {{ else }}
+            <p>There is no post added yet.</p>
         {{/each}}
     `,
     delete: function(index) {

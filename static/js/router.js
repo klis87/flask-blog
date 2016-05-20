@@ -14,13 +14,14 @@ var router = Ractive.extend({
     isolated: true,
     template: `
         {{>content}}
-        {{>getComponent(currentView)}}
+        {{#if currentView}}
+            {{>getComponent(currentView)}}
+        {{/if}}
     `,
     data: function() {
         return {
             currentView: '',
             getComponent: function(name) {
-                name = name || 'default';
                 if (!!this.partials[name]) return name;
                 this.partials[name] = `<${name} />`;
                 return name;

@@ -16,6 +16,11 @@ var home = component.extend({
     `,
     oninit: function() {
         var publishedPosts = posts.filter(function(v) { return v.published; });
+        publishedPosts.sort(function(a, b) {
+            if (a.publicationDate < b.publicationDate) return 1;
+            if (a.publicationDate > b.publicationDate) return -1;
+            return 0;
+        });
         this.set('publishedPosts', publishedPosts);
     },
     data: function() {
@@ -41,9 +46,7 @@ var postDetail = component.extend({
     },
     oninit: function() {
         this.observe('id', function(value) {
-            if (value) {
-                this.getPost(value);
-            }
+            if (value) this.getPost(value);
         });
     },
     getPost: function(id) {
@@ -231,9 +234,7 @@ var adminDetail = component.extend({
     },
     oninit: function() {
         this.observe('id', function(value) {
-            if (value) {
-                this.getPost(value);
-            }
+            if (value) this.getPost(value);
         });
     },
     getPost: function(id) {

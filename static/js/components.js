@@ -93,6 +93,7 @@ var alert = component.extend({
     `,
     oninit: function() {
         this.close = this.get('onClose').bind(this.parent);
+
         this.timeoutId = setTimeout(function() {
             var index = this.get('index');
             this.close(index);

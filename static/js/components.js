@@ -2,6 +2,14 @@ var component = Ractive.extend({
   isolated: true
 });
 
+var panel = Ractive.extend({
+  template: `
+    <div class="panel panel-default">
+      <div class="panel-heading clearfix">{{ yield title }}</div>
+      <div class="panel-body">{{ yield body }}</div>
+    </div>
+  `
+});
 
 var link = component.extend({
   template: `

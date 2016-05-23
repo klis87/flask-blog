@@ -1,23 +1,31 @@
 var home = component.extend({
+  data: function () {
+    return {
+      publishedPosts: []
+    };
+  },
+  components: {
+    panel: panel
+  },
   template: `
     <div class="posts">
     {{#each publishedPosts}}
-      <div class="panel panel-default">
-        <div class="panel-heading">
+      <panel>
+        {{#partial title}}
           <span class="pull-right">{{ publicationDate }}</span>
           <h2 class="panel-title"><a href="/{{ id }}/">{{ title }}</a></h2>
-        </div>
-        <div class="panel-body">{{ description }}</div>
-      </div>
+        {{/partial}}
+        {{#partial body}}
+          {{ description }}
+        {{/partial}}
+      </panel>
     {{ else }}
       <p>There is no post added yet.</p>
     {{/each}}
     </div>
   `,
   oninit: function () {
-    var publishedPosts = posts.filter(function (v) {
-      return v.published;
-    });
+    var publishedPosts = posts.filter(function(v) { return v.published; });
 
     publishedPosts.sort(function (a, b) {
       if (a.publicationDate < b.publicationDate) return 1;
@@ -26,11 +34,6 @@ var home = component.extend({
     });
 
     this.set('publishedPosts', publishedPosts);
-  },
-  data: function () {
-    return {
-      publishedPosts: []
-    };
   }
 });
 
@@ -95,6 +98,7 @@ var admin = component.extend({
     };
   },
   components: {
+    panel: panel,
     'delete-post-modal': deletePostModal
   },
   template: `
@@ -104,17 +108,19 @@ var admin = component.extend({
     </div>
     <hr>
     {{#each posts: i}}
-      <div class="panel panel-default">
-        <div class="panel-heading clearfix">
+      <panel>
+        {{#partial title}}
           <div class="pull-right">
             <a class="btn btn-primary btn-sm" href="/admin/{{ id }}/">Edit</a>
             <button class="btn btn-danger btn-sm" data-toggle="modal"
                     data-target="#delete-post-{{ i }}">Delete</button>
           </div>
           <h2 class="panel-title">{{ title }}</h2>
-        </div>
-        <div class="panel-body">{{ description }}</div>
-      </div>
+        {{/partial}}
+        {{#partial body}}
+          {{ description }}
+        {{/partial}}
+      </panel>
       <delete-post-modal id="delete-post-{{ i }}" title="{{ title }}" index="{{ i }}" />
     {{ else }}
       <p>There is no post added yet.</p>
@@ -161,13 +167,13 @@ var editedPostForm = component.extend({
       <div class="form-group">
         <label for="date">Publication date</label>
         <div style="position: relative;">
-            <input type="text" class="form-control" id="date" decorator="datepicker"
-                   value="{{ postState.publicationDate }}" required>
+          <input type="text" class="form-control" id="date" decorator="datepicker"
+                 value="{{ postState.publicationDate }}" required>
         </div>
       </div>
       <div class="checkbox">
         <label>
-            <input type="checkbox" checked="{{ postState.published }}" name="published"> Published
+          <input type="checkbox" checked="{{ postState.published }}" name="published"> Published
         </label>
       </div>
       <hr>

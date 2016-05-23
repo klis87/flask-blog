@@ -283,6 +283,7 @@ var root = Ractive({
   `,
   components: {
     router: router,
+    route: route,
     navbar: navbar,
     link: link,
     alerts: alerts

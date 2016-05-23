@@ -1,17 +1,17 @@
 var route = component.extend({
   oninit: function() {
     page(this.get('path'), function(ctx) {
-      this.parent.set('currentView', this.get('component'));
+      this.container.set('currentView', this.get('component'));
       this.root.set('currentPath', ctx.path);
       var id = ctx.params.id;
-      if (id) this.parent.setId(id);
+      if (id) this.container.setId(id);
     }.bind(this));
   }
 });
 
 var router = component.extend({
   template: `
-    {{>content}}
+    {{ yield }}
     {{#if currentView}}
       {{>getComponent(currentView)}}
     {{/if}}
@@ -25,9 +25,6 @@ var router = component.extend({
         return name;
       }
     };
-  },
-  components: {
-    route: route
   },
   onconfig: function() {
     $.extend(this.components, this.get('views'));

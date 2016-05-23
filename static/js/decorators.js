@@ -1,32 +1,32 @@
-var parsley = function(node, callback) {
-    var instance = $(node).parsley();
+var parsley = function (node, callback) {
+  var instance = $(node).parsley();
 
-    instance.on('form:success', function() {
-        callback();
-    });
+  instance.on('form:success', function () {
+    callback();
+  });
 
-    instance.on('form:submit', function() {
-        return false;
-    });
+  instance.on('form:submit', function () {
+    return false;
+  });
 
-    return {
-        teardown: function() {
-            instance.destroy();
-        }
+  return {
+    teardown: function () {
+      instance.destroy();
     }
+  };
 };
 
-var datepicker = function(node) {
-    var options = {
-        format: 'DD/MM/YYYY',
-        useCurrent: false
-    };
+var datepicker = function (node) {
+  var options = {
+    format: 'DD/MM/YYYY',
+    useCurrent: false
+  };
 
-    $(node).datetimepicker(options);
+  $(node).datetimepicker(options);
 
-    return {
-        teardown: function() {
-            $(node).data("DateTimePicker").destroy();
-        }
-    };
+  return {
+    teardown: function () {
+      $(node).data("DateTimePicker").destroy();
+    }
+  };
 };

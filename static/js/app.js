@@ -52,7 +52,7 @@ var postDetail = component.extend({
     };
   },
   oninit: function() {
-    this.observe('id', function(value) {
+    this.observe('params.id', function(value) {
       if (value) this.getPost(value);
     });
   },
@@ -223,7 +223,7 @@ var adminDetail = component.extend({
   },
   computed: {
     index: function() {
-      var id = parseInt(this.get('id'));
+      var id = parseInt(this.get('params.id'));
       var posts = this.get('posts');
       var postsIds = posts.map(function(v) { return v.id; });
       return postsIds.indexOf(id);
@@ -243,7 +243,7 @@ var adminDetail = component.extend({
     'delete-post-modal': deletePostModal
   },
   oninit: function() {
-    this.observe('id', function(value) {
+    this.observe('params.id', function(value) {
       if (value) this.getPost(value);
     });
   },

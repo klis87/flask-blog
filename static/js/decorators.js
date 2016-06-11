@@ -1,3 +1,5 @@
+Parsley.options.trigger = 'focusout';
+
 var parsley = function (node, callback) {
   var instance = $(node).parsley();
 
@@ -26,7 +28,7 @@ var datepicker = function (node) {
 
   return {
     teardown: function () {
-      $(node).data("DateTimePicker").destroy();
+      $(node).data('DateTimePicker').destroy();
     }
   };
 };

@@ -1,8 +1,19 @@
 var home = component.extend({
   data: function () {
     return {
-      publishedPosts: []
+      posts: posts
     };
+  },
+  computed: {
+    publishedPosts: function() {
+      var posts = this.get('posts').filter(function(v) { return v.published; });
+
+      return posts.sort(function (a, b) {
+        if (a.publicationDate < b.publicationDate) return 1;
+        if (a.publicationDate > b.publicationDate) return -1;
+        return 0;
+      });
+    }
   },
   components: {
     panel: panel
@@ -23,18 +34,7 @@ var home = component.extend({
       <p>There is no post added yet.</p>
     {{/each}}
     </div>
-  `,
-  oninit: function () {
-    var publishedPosts = posts.filter(function(v) { return v.published; });
-
-    publishedPosts.sort(function (a, b) {
-      if (a.publicationDate < b.publicationDate) return 1;
-      if (a.publicationDate > b.publicationDate) return -1;
-      return 0;
-    });
-
-    this.set('publishedPosts', publishedPosts);
-  }
+  `
 });
 
 var postDetail = component.extend({
@@ -62,11 +62,6 @@ var postDetail = component.extend({
 });
 
 var deletePostModal = component.extend({
-  data: function() {
-    return {
-      posts: posts
-    };
-  },
   components: {
     modal: modal
   },
@@ -121,7 +116,7 @@ var admin = component.extend({
           {{ description }}
         {{/partial}}
       </panel>
-      <delete-post-modal id="delete-post-{{ i }}" title="{{ title }}" index="{{ i }}" />
+      <delete-post-modal id="delete-post-{{ i }}" title="{{ title }}" index="{{ i }}" posts="{{ posts }}" />
     {{ else }}
       <p>There is no post added yet.</p>
     {{/each}}
@@ -131,7 +126,6 @@ var admin = component.extend({
 var editedPostForm = component.extend({
   data: function() {
     return {
-      posts: posts,
       post: {},
       save: this.save.bind(this)
     }
@@ -156,12 +150,12 @@ var editedPostForm = component.extend({
                maxlength="60">
       </div>
       <div class="form-group">
-        <label>Short description</label>
-        <textarea value="{{ postState.description }}" class="form-control" required="true"
+        <label for="short-description">Short description</label>
+        <textarea id="short-description" value="{{ postState.description }}" class="form-control" required
                   maxlength="255"></textarea>
       </div>
       <div class="form-group">
-        <label>Content</label>
+        <label for="content">Content</label>
         <jqte value="{{ postState.content }}" required="{{ true }}" />
       </div>
       <div class="form-group">
@@ -186,7 +180,6 @@ var editedPostForm = component.extend({
     var posts = this.get('posts');
     var editedPostIndex = posts.map(function(v) { return v.id; }).indexOf(postState.id);
     this.set(`posts[${editedPostIndex}]`, postState);
-    this.set('post', postState);
     this.root.findComponent('alerts').addMessage(`Post ${postState.title} has been successfully edited.`);
   }
 });
@@ -217,7 +210,6 @@ var newPostForm = editedPostForm.extend({
 var adminDetail = component.extend({
   data: function() {
     return {
-      post: {},
       posts: posts
     };
   },
@@ -227,36 +219,39 @@ var adminDetail = component.extend({
       var posts = this.get('posts');
       var postsIds = posts.map(function(v) { return v.id; });
       return postsIds.indexOf(id);
+    },
+    post: function() {
+      var id = this.get('params.id');
+      if (!id) return {};
+      var posts = this.get('posts');
+      return posts.filter(function(v) { return v.id == id; })[0];
     }
   },
   template: `
     <h1>{{ post.title }}</h1>
     <hr>
-    <edited-post-form post="{{ post }}">
+    <edited-post-form post="{{ post }}" posts="{{ posts }}">
       <button class="btn btn-danger btn pull-left" data-toggle="modal" type="button"
               data-target="#delete-post">Delete</button>
-      <delete-post-modal id="delete-post" title="{{ post.title }}" index="{{ index }}" />
+      <delete-post-modal id="delete-post" title="{{ post.title }}" index="{{ index }}" posts="{{ posts }}" />
     </edited-post-form>
   `,
   components: {
     'edited-post-form': editedPostForm,
     'delete-post-modal': deletePostModal
-  },
-  oninit: function() {
-    this.observe('params.id', function(value) {
-      if (value) this.getPost(value);
-    });
-  },
-  getPost: function(id) {
-    this.set('post', posts.filter(function(v) { return v.id == id; })[0]);
   }
 });
 
 var newPost = component.extend({
+  data: function() {
+    return {
+      posts: posts
+    };
+  },
   template: `
     <h1>New post</h1>
     <hr>
-    <new-post-form />
+    <new-post-form posts="{{ posts }}" />
   `,
   components: {
     'new-post-form': newPostForm
@@ -268,7 +263,7 @@ var root = Ractive({
   template: `
     <navbar currentPath="{{ currentPath }}" brand="RACTIVE BLOG">
       <link pattern="^/(\\d+/)?$" href="/" name="Home" />
-      <link pattern="^/admin/.*$" href="/admin/" name="Admin panel" />
+      <link pattern="^/admin/" href="/admin/" name="Admin panel" />
     </navbar>
     <main class="container-fluid">
       <router views="{{ views }}">

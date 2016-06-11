@@ -101,7 +101,7 @@ var alert = component.extend({
     </div>
   `,
   oninit: function() {
-    this.close = this.get('onClose').bind(this.parent);
+    this.close = this.get('onClose');
 
     this.timeoutId = setTimeout(function() {
       var index = this.get('index');
@@ -117,7 +117,7 @@ var alerts = component.extend({
   data: function() {
     return {
       messages: [],
-      removeMessage: this.removeMessage
+      removeMessage: this.removeMessage.bind(this)
     };
   },
   components: {
@@ -147,7 +147,7 @@ var modal = component.extend({
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
-            <h2 class="modal-title">{{ title }}</h2>
+            {{#if title}}<h2 class="modal-title">{{ title }}</h2>{{/if}}
           </div>
           <div class="modal-body">
             {{ yield body }}

@@ -20,7 +20,7 @@ var parsley = function (node, callback) {
 
 var datepicker = function (node) {
   var options = {
-    format: 'DD/MM/YYYY',
+    format: 'YYYY-MM-DD',
     useCurrent: false
   };
 

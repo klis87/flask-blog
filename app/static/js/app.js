@@ -1,7 +1,7 @@
 var home = component.extend({
   data: function () {
     return {
-      posts: posts
+      posts: []
     };
   },
   computed: {
@@ -9,8 +9,8 @@ var home = component.extend({
       var posts = this.get('posts').filter(function(v) { return v.published; });
 
       return posts.sort(function (a, b) {
-        if (a.publicationDate < b.publicationDate) return 1;
-        if (a.publicationDate > b.publicationDate) return -1;
+        if (a.publication_date < b.publication_date) return 1;
+        if (a.publication_date > b.publication_date) return -1;
         return 0;
       });
     }
@@ -23,7 +23,7 @@ var home = component.extend({
     {{#each publishedPosts}}
       <panel>
         {{#partial title}}
-          <span class="pull-right">{{ publicationDate }}</span>
+          <span class="pull-right">{{ publication_date }}</span>
           <h2 class="panel-title"><a href="/{{ id }}/">{{ title }}</a></h2>
         {{/partial}}
         {{#partial body}}
@@ -34,14 +34,19 @@ var home = component.extend({
       <p>There is no post added yet.</p>
     {{/each}}
     </div>
-  `
+  `,
+  oninit: function() {
+    postsApi.fetch().then(function(posts) {
+      this.set('posts', posts)
+    }.bind(this));
+  }
 });
 
 var postDetail = component.extend({
   template: `
     <div class="clearfix">
       <h1 class="pull-left">{{ post.title }}</h1>
-      <span class="publication-date">{{ post.publicationDate }}</span>
+      <span class="publication-date">{{ post.publication_date }}</span>
     </div>
     <hr>
     <p>{{{ post.content }}}</p>
@@ -57,7 +62,9 @@ var postDetail = component.extend({
     });
   },
   getPost: function(id) {
-    this.set('post', posts.filter(function(v) { return v.id == id; })[0]);
+    postsApi.fetchOne(id).then(function(post) {
+      this.set('post', post);
+    }.bind(this));
   }
 });
 
@@ -66,30 +73,35 @@ var deletePostModal = component.extend({
     modal: modal
   },
   template: `
-    <modal id="{{ id }}">
+    <modal id="delete-post-{{ post.id }}">
       {{#partial body}}
-        <p>Are you sure you would like to delete post {{ title }}?</p>
+        <p>Are you sure you would like to delete post {{ post.title }}?</p>
       {{/partial}}
       {{#partial footer}}
         <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
-        <button on-click="delete(index)" class="btn btn-danger" data-dismiss="modal"
+        <button on-click="delete()" class="btn btn-danger" data-dismiss="modal"
                 type="button">Yes</button>
       {{/partial}}
     </modal>
   `,
-  delete: function(index) {
+  delete: function() {
+    var post = this.get('post');
     var posts = this.get('posts');
-    var title = posts[index].title;
-    posts.splice(index, 1);
-    this.root.findComponent('alerts').addMessage(`Post ${title} has been deleted.`);
-    page('/dashboard/');
+    postsApi.delete(post).then(function() {
+      this.root.findComponent('alerts').addMessage(`Post ${post.title} has been deleted.`);
+      page('/dashboard/');
+      if (posts) {
+        var index = posts.map(function(v) { return v.id; }).indexOf(post.id);
+        posts.splice(index, 1);
+      }
+    }.bind(this));
   }
 });
 
 var dashboard = component.extend({
   data: function() {
     return {
-      posts: posts
+      posts: []
     };
   },
   components: {
@@ -108,7 +120,7 @@ var dashboard = component.extend({
           <div class="pull-right">
             <a class="btn btn-primary btn-sm" href="/dashboard/{{ id }}/">Edit</a>
             <button class="btn btn-danger btn-sm" data-toggle="modal"
-                    data-target="#delete-post-{{ i }}">Delete</button>
+                    data-target="#delete-post-{{ id }}">Delete</button>
           </div>
           <h2 class="panel-title">{{ title }}</h2>
         {{/partial}}
@@ -116,11 +128,16 @@ var dashboard = component.extend({
           {{ description }}
         {{/partial}}
       </panel>
-      <delete-post-modal id="delete-post-{{ i }}" title="{{ title }}" index="{{ i }}" posts="{{ posts }}" />
+      <delete-post-modal post="{{ posts[i] }}" posts="{{ posts }}" />
     {{ else }}
       <p>There is no post added yet.</p>
     {{/each}}
-  `
+  `,
+  oninit: function() {
+    postsApi.fetch().then(function(posts) {
+      this.set('posts', posts)
+    }.bind(this));
+  }
 });
 
 var editedPostForm = component.extend({
@@ -162,7 +179,7 @@ var editedPostForm = component.extend({
         <label for="date">Publication date</label>
         <div style="position: relative;">
           <input type="text" class="form-control" id="date" decorator="datepicker"
-                 value="{{ postState.publicationDate }}" required>
+                 value="{{ postState.publication_date }}" required>
         </div>
       </div>
       <div class="checkbox">
@@ -177,81 +194,59 @@ var editedPostForm = component.extend({
   `,
   save: function() {
     var postState = this.get('postState');
-    var posts = this.get('posts');
-    var editedPostIndex = posts.map(function(v) { return v.id; }).indexOf(postState.id);
-    this.set(`posts[${editedPostIndex}]`, postState);
-    this.root.findComponent('alerts').addMessage(`Post ${postState.title} has been successfully edited.`);
+    postsApi.edit(postState).then(function(post) {
+      this.set('post', post);
+      this.root.findComponent('alerts').addMessage(`Post ${postState.title} has been successfully edited.`);
+    }.bind(this));
   }
 });
 
 var newPostForm = editedPostForm.extend({
-  calculateNextId: function() {
-    var posts = this.get('posts');
-    var nextId;
-
-    if (posts.length === 0) {
-      nextId = 1;
-    } else {
-      nextId = posts[posts.length - 1].id + 1;
-    }
-
-    return nextId;
-  },
   save: function() {
     var postState = this.get('postState');
-    postState.id = this.calculateNextId();
-    var posts = this.get('posts');
-    this.get('posts').push(postState);
-    page(`/dashboard/${postState.id}/`);
-    this.root.findComponent('alerts').addMessage(`Post ${postState.title} has been successfully created.`);
+    postsApi.add(postState).then(function(post) {
+      this.root.findComponent('alerts').addMessage(`Post ${postState.title} has been successfully created.`);
+      page(`/dashboard/${post.id}/`);
+    }.bind(this));
   }
 });
 
 var dashboardDetail = component.extend({
   data: function() {
     return {
-      posts: posts
+      post: {}
     };
-  },
-  computed: {
-    index: function() {
-      var id = parseInt(this.get('params.id'));
-      var posts = this.get('posts');
-      var postsIds = posts.map(function(v) { return v.id; });
-      return postsIds.indexOf(id);
-    },
-    post: function() {
-      var id = this.get('params.id');
-      if (!id) return {};
-      var posts = this.get('posts');
-      return posts.filter(function(v) { return v.id == id; })[0];
-    }
   },
   template: `
     <h1>{{ post.title }}</h1>
     <hr>
-    <edited-post-form post="{{ post }}" posts="{{ posts }}">
+    <edited-post-form post="{{ post }}">
       <button class="btn btn-danger btn pull-left" data-toggle="modal" type="button"
-              data-target="#delete-post">Delete</button>
-      <delete-post-modal id="delete-post" title="{{ post.title }}" index="{{ index }}" posts="{{ posts }}" />
+              data-target="#delete-post-{{ post.id }}">Delete</button>
+      <delete-post-modal post="{{ post }}" />
     </edited-post-form>
   `,
   components: {
     'edited-post-form': editedPostForm,
     'delete-post-modal': deletePostModal
+  },
+  oninit: function() {
+    this.observe('params.id', function(value) {
+      if (value) this.getPost(value);
+    });
+  },
+  getPost: function(id) {
+    postsApi.fetchOne(id).then(function(post) {
+      this.set('post', post);
+    }.bind(this));
   }
 });
 
 var newPost = component.extend({
-  data: function() {
-    return {
-      posts: posts
-    };
-  },
   template: `
     <h1>New post</h1>
     <hr>
-    <new-post-form posts="{{ posts }}" />
+    <new-post-form />
   `,
   components: {
     'new-post-form': newPostForm

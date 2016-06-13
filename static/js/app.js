@@ -86,7 +86,7 @@ var deletePostModal = component.extend({
   }
 });
 
-var admin = component.extend({
+var dashboard = component.extend({
   data: function() {
     return {
       posts: posts
@@ -98,7 +98,7 @@ var admin = component.extend({
   },
   template: `
     <div class="clearfix">
-      <h1 class="pull-left">Admin panel</h1>
+      <h1 class="pull-left">Dashboard</h1>
       <a class="btn btn-success pull-right header-btn btn" href="/admin/new/">New post</a>
     </div>
     <hr>
@@ -207,7 +207,7 @@ var newPostForm = editedPostForm.extend({
   }
 });
 
-var adminDetail = component.extend({
+var dashboardDetail = component.extend({
   data: function() {
     return {
       posts: posts
@@ -263,15 +263,15 @@ var root = Ractive({
   template: `
     <navbar currentPath="{{ currentPath }}" brand="RACTIVE BLOG">
       <link pattern="^/(\\d+/)?$" href="/" name="Home" />
-      <link pattern="^/admin/" href="/admin/" name="Admin panel" />
+      <link pattern="^/dashboard/" href="/dashboard/" name="Dashboard" />
     </navbar>
     <main class="container-fluid">
       <router views="{{ views }}">
         <route path="/" component="home" />
         <route path="/:id(\\d+)/" component="post-detail" />
-        <route path="/admin/" component="admin" />
-        <route path="/admin/:id(\\d+)/" component="admin-detail" />
-        <route path="/admin/new/" component="new-post">
+        <route path="/dashboard/" component="dashboard" />
+        <route path="/dashboard/:id(\\d+)/" component="dashboard-detail" />
+        <route path="/dashboard/new/" component="new-post">
       </router>
     </main>
     <alerts />
@@ -288,7 +288,7 @@ var root = Ractive({
       home: home,
       admin: admin,
       'post-detail': postDetail,
-      'admin-detail': adminDetail,
+      'dashboard-detail': dashboardDetail,
       'new-post': newPost
     }
   }

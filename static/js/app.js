@@ -286,7 +286,7 @@ var root = Ractive({
   data: {
     views: {
       home: home,
-      admin: admin,
+      dashboard: dashboard,
       'post-detail': postDetail,
       'dashboard-detail': dashboardDetail,
       'new-post': newPost

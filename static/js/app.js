@@ -82,7 +82,7 @@ var deletePostModal = component.extend({
     var title = posts[index].title;
     posts.splice(index, 1);
     this.root.findComponent('alerts').addMessage(`Post ${title} has been deleted.`);
-    page('/admin/');
+    page('/dashboard/');
   }
 });
 
@@ -99,14 +99,14 @@ var dashboard = component.extend({
   template: `
     <div class="clearfix">
       <h1 class="pull-left">Dashboard</h1>
-      <a class="btn btn-success pull-right header-btn btn" href="/admin/new/">New post</a>
+      <a class="btn btn-success pull-right header-btn btn" href="/dashboard/new/">New post</a>
     </div>
     <hr>
     {{#each posts: i}}
       <panel>
         {{#partial title}}
           <div class="pull-right">
-            <a class="btn btn-primary btn-sm" href="/admin/{{ id }}/">Edit</a>
+            <a class="btn btn-primary btn-sm" href="/dashboard/{{ id }}/">Edit</a>
             <button class="btn btn-danger btn-sm" data-toggle="modal"
                     data-target="#delete-post-{{ i }}">Delete</button>
           </div>
@@ -202,7 +202,7 @@ var newPostForm = editedPostForm.extend({
     postState.id = this.calculateNextId();
     var posts = this.get('posts');
     this.get('posts').push(postState);
-    page(`/admin/${postState.id}/`);
+    page(`/dashboard/${postState.id}/`);
     this.root.findComponent('alerts').addMessage(`Post ${postState.title} has been successfully created.`);
   }
 });

@@ -2,4 +2,4 @@
 POSTGRES_HOST = 'localhost'
 POSTGRES_PASSWORD = 'password'
 POSTGRES_USER = 'user'
-POSTGRES_DB = 'db'
+POSTGRES_DB = 'flask_blog'
